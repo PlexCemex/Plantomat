@@ -1,3 +1,0 @@
-image_path,label,timestamp,growth_stage,plant_id
-../data/raw/own_images/healthy/img_0001.jpg,healthy,2026-02-01T10:15:00,vegetative,plant_01
-../data/raw/own_images/late_blight/img_0023.jpg,late_blight,2026-02-01T12:05:00,fruiting,plant_02
