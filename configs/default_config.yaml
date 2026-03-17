@@ -1,0 +1,33 @@
+image_col: image_path
+label_col: label
+split_col: split
+categorical_feature_columns:
+  - growth_stage
+  - sensor_context_label
+reserved_columns:
+  - image_path
+  - label
+  - split
+  - timestamp
+  - plant_id
+  - source_dataset
+  - source_dataset_sensor
+  - pairing_strategy
+  - sensor_row_id
+image_size: 224
+batch_size: 16
+num_workers: 0
+epochs: 20
+lr: 0.0003
+weight_decay: 0.0001
+dropout: 0.30
+backbone: efficientnet_b0
+pretrained: true
+freeze_backbone_epochs: 1
+early_stopping_patience: 5
+grad_clip: 1.0
+label_smoothing: 0.05
+mixed_precision: true
+seed: 42
+val_ratio: 0.15
+test_ratio: 0.15
