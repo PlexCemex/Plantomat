@@ -55,26 +55,16 @@ python code/evaluate_sensor_model.py --csv data_work/udea_sensors_clean.csv --ar
 Отдельно анализирует фото листа и JSON датчиков, затем печатает общий вывод.
 
 ```bash
-python code/analyze_plant.py --image-checkpoint results/image_model/best_image_model.pt --sensor-artifact-dir results/sensor_model --image test_inputs/images/test1.jpg --sensor-json test_inputs/sensors/healthy_demo.json --device auto
+python code/analyze_plant.py --image-checkpoint results/image_model/best_image_model.pt --sensor-artifact-dir results/sensor_model --image test_inputs/images/Tomato___healthy1.jpg --sensor-json test_inputs/sensors/Tomato___healthy1.json --device auto
 ```
 
 ## 9. Проверка с рисковым JSON
 Пример запуска с неблагоприятными условиями среды.
 
 ```bash
-python code/analyze_plant.py --image-checkpoint results/image_model/best_image_model.pt --sensor-artifact-dir results/sensor_model --image test_inputs/images/test1.jpg --sensor-json test_inputs/sensors/humid_risk_demo.json --device auto
+python code/analyze_plant.py --image-checkpoint results/image_model/best_image_model.pt --sensor-artifact-dir results/sensor_model --image test_inputs/images/Leaf_Mold1.jpg --sensor-json test_inputs/sensors/Leaf_Mold1.json --device auto
 ```
 
-## Что положить в папки
-
-### Изображения датасета
-- `data_raw/images/PlantVillage-Dataset/`
-
-### CSV датчиков
-- `data_raw/sensors/DB_Mobile_Manual_Tomato.csv`
-
-### Тестовые изображения
-- `test_inputs/images/`
-
-### Тестовые JSON датчиков
-- `test_inputs/sensors/`
+```bash
+python code/analyze_plant.py --image-checkpoint results/image_model/best_image_model.pt --sensor-artifact-dir results/sensor_model --image test_inputs/images/Test_healthy1.jpg --sensor-json test_inputs/sensors/Tomato___healthy1.json --device auto
+```
