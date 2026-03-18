@@ -1,11 +1,15 @@
+data_raw/images/Pakistan_Tomato_7200/color/*
+data_raw/images/PlantDoc-Dataset/color/*
 data_raw/images/PlantVillage-Dataset/color/*
+data_raw/images/Tomato_leaf_diseases_2600/color/*
 data_raw/sensors/*
 
 data_work/*
 
-results/combined/*
-results/image_model/*
-results/sensor_model/*
+results/*
+# results/combined/*
+# results/image_model/*
+# results/sensor_model/*
 
 test_inputs/images/*
 test_inputs/sensors/*

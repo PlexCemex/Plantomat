@@ -84,22 +84,28 @@ def main() -> None:
             preds.extend(torch.argmax(logits, dim=1).cpu().tolist())
             targets.extend(labels.tolist())
 
+    labels = list(range(len(class_names)))
+    
     accuracy = accuracy_score(targets, preds)
     precision, recall, f1, _ = precision_recall_fscore_support(
         targets,
         preds,
+        labels=labels,
         average='macro',
         zero_division=0,
     )
-
+    
     report = classification_report(
         targets,
         preds,
+        labels=labels,
         target_names=class_names,
         digits=4,
         output_dict=True,
         zero_division=0,
     )
+    
+    cm = confusion_matrix(targets, preds, labels=labels)
     report['summary_metrics'] = {
         'accuracy': float(accuracy),
         'accuracy_pct': float(accuracy * 100.0),

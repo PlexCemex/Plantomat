@@ -68,3 +68,8 @@ python code/analyze_plant.py --image-checkpoint results/image_model/best_image_m
 ```bash
 python code/analyze_plant.py --image-checkpoint results/image_model/best_image_model.pt --sensor-artifact-dir results/sensor_model --image test_inputs/images/Test_healthy1.jpg --sensor-json test_inputs/sensors/Tomato___healthy1.json --device auto
 ```
+
+
+python "C:\Users\Admin\go\Plantomat\code\train_image_model_robust.py" --csv "C:\Users\Admin\go\Plantomat\data_work\plantomat_realworld_mix.csv" --output-dir "C:\Users\Admin\go\Plantomat\results\image_model_robust_from_scratch" --backbone efficientnet_b0 --image-size 224 --epochs 20 --batch-size 16 --lr 0.0002 --device auto --workers 4 --realworld-boost 2.5
+
+python "C:\Users\Admin\go\Plantomat\code\evaluate_image_model.py" --csv "C:\Users\Admin\go\Plantomat\data_work\plantomat_realworld_mix.csv" --checkpoint "C:\Users\Admin\go\Plantomat\results\image_model_robust_from_scratch\best_image_model_robust.pt" --output-dir "C:\Users\Admin\go\Plantomat\results\image_eval_robust_from_scratch" --split test
