@@ -1,75 +1,61 @@
-# Команды
+# Актуальные команды Plantomat
 
-Все команды выполняются **из корня проекта Plantomat**.
-
-## 1. Установка библиотек
-Устанавливает все зависимости проекта.
-
-```bash
-pip install -r requirements.txt
+## 1. Подготовка PlantVillage CSV
+```powershell
+python "C:\Users\Admin\go\Plantomat\code\prepare_plantvillage.py" --dataset-root "C:\Users\Admin\go\Plantomat\data_raw\images\PlantVillage-Dataset" --color-subdir color --output-csv "C:\Users\Admin\go\Plantomat\data_work\plantvillage_tomato.csv"
 ```
 
-## 2. Подготовка изображений PlantVillage
-Создаёт рабочий CSV только по томатным изображениям и делает split `train/val/test`.
-
-```bash
-python code/prepare_plantvillage.py --dataset-root data_raw/images/PlantVillage-Dataset --color-subdir color --output-csv data_work/plantvillage_tomato.csv
+## 2. Сбор общего CSV из 4 датасетов
+```powershell
+python "C:\Users\Admin\go\Plantomat\code\prepare_realworld_mix.py" --base-csv "C:\Users\Admin\go\Plantomat\data_work\plantvillage_tomato.csv" --plantdoc-root "C:\Users\Admin\go\Plantomat\data_raw\images\PlantDoc-Dataset\color" --pakistan-root "C:\Users\Admin\go\Plantomat\data_raw\images\Pakistan_Tomato_7200\color" --realworld-root "C:\Users\Admin\go\Plantomat\data_raw\images\Tomato_leaf_diseases_2600\color" --output-csv "C:\Users\Admin\go\Plantomat\data_work\plantomat_realworld_mix.csv"
 ```
 
-## 3. Подготовка сенсорного CSV
-Очищает и приводит сенсорный CSV к каноническим полям проекта.
-
-```bash
-python code/prepare_udea_sensors.py --input-csv data_raw/sensors/DB_Mobile_Manual_Tomato.csv --output-csv data_work/udea_sensors_clean.csv
-```
-
-## 4. Обучение модели по изображениям
-Обучает image-only классификатор с аугментациями: повороты, отражения, perspective, affine, jitter.
-
-```bash
-python code/train_image_model.py --csv data_work/plantvillage_tomato.csv --output-dir results/image_model --backbone resnet18 --image-size 224 --epochs 20 --batch-size 32 --device auto
-```
-
-## 5. Оценка модели по изображениям
-Строит classification report и confusion matrix по test split.
-
-```bash
-python code/evaluate_image_model.py --csv data_work/plantvillage_tomato.csv --checkpoint results/image_model/best_image_model.pt --output-dir results/image_model/eval --split test --device auto
-```
-
-## 6. Обучение модели по датчикам
-Обучает sensor-only автоэнкодер. Если CUDA/eGPU видна системе, будет использовано CUDA-устройство.
-
-```bash
-python code/train_sensor_model.py --csv data_work/udea_sensors_clean.csv --output-dir results/sensor_model --epochs 80 --batch-size 64 --device auto
-```
-
-## 7. Оценка модели по датчикам
-Считает reconstruction error и долю аномалий.
-
-```bash
-python code/evaluate_sensor_model.py --csv data_work/udea_sensors_clean.csv --artifact-dir results/sensor_model --output-dir results/sensor_model/eval --device auto
-```
-
-## 8. Проверка одного растения
-Отдельно анализирует фото листа и JSON датчиков, затем печатает общий вывод.
-
-```bash
-python code/analyze_plant.py --image-checkpoint results/image_model/best_image_model.pt --sensor-artifact-dir results/sensor_model --image test_inputs/images/Tomato___healthy1.jpg --sensor-json test_inputs/sensors/Tomato___healthy1.json --device auto
-```
-
-## 9. Проверка с рисковым JSON
-Пример запуска с неблагоприятными условиями среды.
-
-```bash
-python code/analyze_plant.py --image-checkpoint results/image_model/best_image_model.pt --sensor-artifact-dir results/sensor_model --image test_inputs/images/Leaf_Mold1.jpg --sensor-json test_inputs/sensors/Leaf_Mold1.json --device auto
-```
-
-```bash
-python code/analyze_plant.py --image-checkpoint results/image_model/best_image_model.pt --sensor-artifact-dir results/sensor_model --image test_inputs/images/Test_healthy1.jpg --sensor-json test_inputs/sensors/Tomato___healthy1.json --device auto
-```
-
-
+## 3. Базовое обучение image-модели на 4 датасетах
+```powershell
 python "C:\Users\Admin\go\Plantomat\code\train_image_model_robust.py" --csv "C:\Users\Admin\go\Plantomat\data_work\plantomat_realworld_mix.csv" --output-dir "C:\Users\Admin\go\Plantomat\results\image_model_robust_from_scratch" --backbone efficientnet_b0 --image-size 224 --epochs 20 --batch-size 16 --lr 0.0002 --device auto --workers 4 --realworld-boost 2.5
+```
 
-python "C:\Users\Admin\go\Plantomat\code\evaluate_image_model.py" --csv "C:\Users\Admin\go\Plantomat\data_work\plantomat_realworld_mix.csv" --checkpoint "C:\Users\Admin\go\Plantomat\results\image_model_robust_from_scratch\best_image_model_robust.pt" --output-dir "C:\Users\Admin\go\Plantomat\results\image_eval_robust_from_scratch" --split test
+## 4. Подготовка real-world only CSV
+```powershell
+python "C:\Users\Admin\go\Plantomat\code\prepare_realworld_only.py" --mixed-csv "C:\Users\Admin\go\Plantomat\data_work\plantomat_realworld_mix.csv" --output-csv "C:\Users\Admin\go\Plantomat\data_work\plantomat_realworld_only.csv"
+```
+
+## 5. Дообучение на real-world only
+```powershell
+python "C:\Users\Admin\go\Plantomat\code\train_image_model_robust.py" --csv "C:\Users\Admin\go\Plantomat\data_work\plantomat_realworld_only.csv" --output-dir "C:\Users\Admin\go\Plantomat\results\image_model_stage2_realworld" --backbone efficientnet_b0 --image-size 300 --epochs 8 --batch-size 12 --lr 0.00005 --device auto --workers 4 --init-checkpoint "C:\Users\Admin\go\Plantomat\results\image_model_robust_from_scratch\best_image_model_robust.pt" --realworld-boost 1.0
+```
+
+## 6. Мягкая донастройка ещё на 5 эпох
+```powershell
+python "C:\Users\Admin\go\Plantomat\code\train_image_model_robust.py" --csv "C:\Users\Admin\go\Plantomat\data_work\plantomat_realworld_only.csv" --output-dir "C:\Users\Admin\go\Plantomat\results\image_model_stage3_polish" --backbone efficientnet_b0 --image-size 300 --epochs 5 --batch-size 12 --lr 0.00002 --device auto --workers 4 --init-checkpoint "C:\Users\Admin\go\Plantomat\results\image_model_stage2_realworld\best_image_model_robust.pt" --realworld-boost 1.0
+```
+
+## 7. Оценка итоговой image-модели
+```powershell
+python "C:\Users\Admin\go\Plantomat\code\evaluate_image_model.py" --csv "C:\Users\Admin\go\Plantomat\data_work\plantomat_realworld_only.csv" --checkpoint "C:\Users\Admin\go\Plantomat\results\image_model_stage3_polish\best_image_model_robust.pt" --output-dir "C:\Users\Admin\go\Plantomat\results\image_eval_stage3_polish" --split test
+```
+
+## 8. Подготовка датчиков
+```powershell
+python "C:\Users\Admin\go\Plantomat\code\prepare_udea_sensors.py" --input-csv "C:\Users\Admin\go\Plantomat\data_raw\DB_Mobile_Manual_Tomato.csv" --output-csv "C:\Users\Admin\go\Plantomat\data_work\udea_sensors_clean.csv"
+```
+
+## 9. Обучение sensor-модели
+```powershell
+python "C:\Users\Admin\go\Plantomat\code\train_sensor_model.py" --csv "C:\Users\Admin\go\Plantomat\data_work\udea_sensors_clean.csv" --output-dir "C:\Users\Admin\go\Plantomat\results\sensor_model" --device auto
+```
+
+## 10. Оценка sensor-модели
+```powershell
+python "C:\Users\Admin\go\Plantomat\code\evaluate_sensor_model.py" --csv "C:\Users\Admin\go\Plantomat\data_work\udea_sensors_clean.csv" --artifact-dir "C:\Users\Admin\go\Plantomat\results\sensor_model" --output-dir "C:\Users\Admin\go\Plantomat\results\sensor_eval"
+```
+
+## 11. Один запуск: фото + датчики
+```powershell
+python "C:\Users\Admin\go\Plantomat\code\analyze_plant_final.py" --image-checkpoint "C:\Users\Admin\go\Plantomat\results\image_model_stage3_polish\best_image_model_robust.pt" --sensor-artifact-dir "C:\Users\Admin\go\Plantomat\results\sensor_model" --image "C:\Users\Admin\go\Plantomat\test_inputs\images\Test_healthy1.jpg" --sensor-json "C:\Users\Admin\go\Plantomat\test_inputs\sensors\Tomato___healthy1.json" --device auto
+```
+
+## 12. Пакетная проверка фото одной командой
+```powershell
+Get-ChildItem "C:\Users\Admin\go\Plantomat\test_inputs\images" -File | ForEach-Object { Write-Host "`n===== $($_.Name) ====="; python "C:\Users\Admin\go\Plantomat\code\analyze_plant_final.py" --image-checkpoint "C:\Users\Admin\go\Plantomat\results\image_model_stage3_polish\best_image_model_robust.pt" --sensor-artifact-dir "C:\Users\Admin\go\Plantomat\results\sensor_model" --image $_.FullName --sensor-json "C:\Users\Admin\go\Plantomat\test_inputs\sensors\Tomato___healthy1.json" --device auto }
+```
