@@ -45,28 +45,6 @@ Plantomat — проект для диагностики заболеваний 
 - оценивает датчики;
 - печатает единый результат.
 
-## Какие файлы можно удалить
-Если они остались от прошлых итераций и ты уже перешёл на текущий пайплайн, можно удалить:
-- `code/infer_image.py`
-- `code/analyze_plant.py`
-- `code/analyze_plant_tta.py`
-- `code/analyze_real_photo_v2.py`
-
-Если в проекте остались ранние fusion-скрипты из старой версии, которые ты уже не используешь, их тоже можно убрать:
-- `code/build_public_multimodal_dataset.py`
-- `code/generate_demo_sensor_data.py`
-
-## Какие файлы должны остаться
-- `code/prepare_plantvillage.py`
-- `code/prepare_realworld_mix.py`
-- `code/prepare_realworld_only.py`
-- `code/train_image_model_robust.py`
-- `code/evaluate_image_model.py`
-- `code/prepare_udea_sensors.py`
-- `code/train_sensor_model.py`
-- `code/evaluate_sensor_model.py`
-- `code/analyze_plant_final.py`
-
 ## Итог
 Текущая версия проекта использует раздельную схему:
 - image-model — диагноз по фото;
