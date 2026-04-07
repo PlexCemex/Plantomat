@@ -39,7 +39,7 @@ python "C:\Users\Admin\Studies\Plantomat\code\train_image_model_robust.py" --csv
 ## 7. Оценка итоговой image-модели
 
 ```powershell
-python "C:\Users\Admin\Studies\Plantomat\code\evaluate_image_model.py" --csv "C:\Users\Admin\Studies\Plantomat\data_work\plantomat_realworld_only.csv" --checkpoint "C:\Users\Admin\Studies\Plantomat\results\image_model_stage3_polish\best_image_model_robust.pt" --output-dir "C:\Users\Admin\Studies\Plantomat\results\image_eval_stage3_polish" --split test
+python "C:\Users\Admin\Studies\Plantomat\code\evaluate_image_model.py" --csv "C:\Users\Admin\Studies\Plantomat\data_work\plantomat_realworld_mix.csv" --checkpoint "C:\Users\Admin\Studies\Plantomat\results\image_model_stage3_polish\best_image_model_robust.pt" --output-dir "C:\Users\Admin\Studies\Plantomat\results\image_eval_stage3_polish" --split test --representative-per-class 50 --representative-source all
 ```
 
 ## 8. Подготовка датчиков
