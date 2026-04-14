@@ -8,7 +8,6 @@ from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import models, transforms
 
-
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
@@ -27,12 +26,29 @@ def build_train_transform(image_size: int = 224):
     ])
 
 
-def build_eval_transform(image_size: int = 224):
-    return transforms.Compose([
-        transforms.Resize((image_size, image_size)),
+def build_eval_transform(
+    image_size: int = 224,
+    mode: str = "resize",
+    crop_scale: float = 1.15,
+):
+    mode = (mode or "resize").strip().lower()
+
+    if mode == "resize":
+        items = [transforms.Resize((image_size, image_size))]
+    elif mode in {"center-crop", "center_crop", "crop"}:
+        resize_size = max(image_size, int(round(image_size * crop_scale)))
+        items = [
+            transforms.Resize(resize_size),
+            transforms.CenterCrop(image_size),
+        ]
+    else:
+        raise ValueError(f"Неизвестный eval mode: {mode}")
+
+    items.extend([
         transforms.ToTensor(),
         transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
     ])
+    return transforms.Compose(items)
 
 
 class ImageCSVDataset(Dataset):
@@ -42,34 +58,43 @@ class ImageCSVDataset(Dataset):
         class_to_idx: Dict[str, int],
         image_size: int = 224,
         augment: bool = False,
+        eval_mode: str = "resize",
+        eval_crop_scale: float = 1.15,
     ) -> None:
         self.df = df.reset_index(drop=True)
         self.class_to_idx = class_to_idx
-        self.transform = build_train_transform(image_size) if augment else build_eval_transform(image_size)
+        self.transform = (
+            build_train_transform(image_size)
+            if augment
+            else build_eval_transform(image_size, mode=eval_mode, crop_scale=eval_crop_scale)
+        )
 
     def __len__(self) -> int:
         return len(self.df)
 
     def __getitem__(self, idx: int):
         row = self.df.iloc[idx]
-        image = Image.open(row['image_path']).convert('RGB')
+        image = Image.open(row["image_path"]).convert("RGB")
         image = self.transform(image)
-        label = self.class_to_idx[row['label']]
+        label = self.class_to_idx[row["label"]]
         return image, torch.tensor(label, dtype=torch.long)
 
 
 def build_image_model(backbone: str, num_classes: int, pretrained: bool = False) -> torch.nn.Module:
     backbone = backbone.lower()
-    if backbone == 'resnet18':
+
+    if backbone == "resnet18":
         weights = models.ResNet18_Weights.DEFAULT if pretrained else None
         model = models.resnet18(weights=weights)
         in_features = model.fc.in_features
         model.fc = torch.nn.Linear(in_features, num_classes)
         return model
-    if backbone == 'efficientnet_b0':
+
+    if backbone == "efficientnet_b0":
         weights = models.EfficientNet_B0_Weights.DEFAULT if pretrained else None
         model = models.efficientnet_b0(weights=weights)
         in_features = model.classifier[1].in_features
         model.classifier[1] = torch.nn.Linear(in_features, num_classes)
         return model
-    raise ValueError(f'Неизвестный backbone: {backbone}')
+
+    raise ValueError(f"Неизвестный backbone: {backbone}")
